@@ -53,13 +53,14 @@ type KafkaInputConfig struct {
 
 	// Consumer Config
 	Topic            string
+	TopicPattern     string `toml:"topic_pattern"`
 	Partition        int32
 	Group            string
 	DefaultFetchSize int32  `toml:"default_fetch_size"`
 	MinFetchSize     int32  `toml:"min_fetch_size"`
 	MaxMessageSize   int32  `toml:"max_message_size"`
 	MaxWaitTime      uint32 `toml:"max_wait_time"`
-	OffsetMethod     string `toml:"offset_method"` // Manual, Newest, Oldest
+	OffsetMethod     string `toml:"offset_method"` // Auto, Manual, Newest, Oldest
 	EventBufferSize  int    `toml:"event_buffer_size"`
 }
 
@@ -94,7 +95,7 @@ func (k *KafkaInput) ConfigStruct() interface{} {
 		DefaultFetchSize:           1024 * 32,
 		MinFetchSize:               1,
 		MaxWaitTime:                250,
-		OffsetMethod:               "Manual",
+		OffsetMethod:               "Auto",
 		EventBufferSize:            16,
 	}
 }
@@ -173,6 +174,9 @@ func (k *KafkaInput) Init(config interface{}) (err error) {
 
 	var offset int64
 	switch k.config.OffsetMethod {
+	case "Auto":
+		// TODO: support Auto using 0.9 consumer groups
+		return fmt.Errorf("offset_method: Auto isn't supported yet")
 	case "Manual":
 		if fileExists(k.checkpointFilename) {
 			if offset, err = readCheckpoint(k.checkpointFilename); err != nil {
