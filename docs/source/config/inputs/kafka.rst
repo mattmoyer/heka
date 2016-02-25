@@ -88,6 +88,11 @@ Config:
     encryption. This will only have any impact if ``use_tls`` is set to true.
     See :ref:`tls`.
 
+- add_kafka_metadata_fields (bool, optional):
+    If true, adds ``Key``, ``Topic``, ``Partition``, and ``Offset`` fields
+    to each message. Default is to add these fields only if ``use_message_bytes``
+    is set to ``false`` in your splitter configuration.
+
 
 Example 1: Read Fxa messages from partition 0.
 

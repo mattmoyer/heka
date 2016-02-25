@@ -52,15 +52,16 @@ type KafkaInputConfig struct {
 	WriteTimeout    uint32 `toml:"write_timeout"`
 
 	// Consumer Config
-	Topic            string
-	Partition        int32
-	Group            string
-	DefaultFetchSize int32  `toml:"default_fetch_size"`
-	MinFetchSize     int32  `toml:"min_fetch_size"`
-	MaxMessageSize   int32  `toml:"max_message_size"`
-	MaxWaitTime      uint32 `toml:"max_wait_time"`
-	OffsetMethod     string `toml:"offset_method"` // Manual, Newest, Oldest
-	EventBufferSize  int    `toml:"event_buffer_size"`
+	Topic                  string
+	Partition              int32
+	Group                  string
+	DefaultFetchSize       int32  `toml:"default_fetch_size"`
+	MinFetchSize           int32  `toml:"min_fetch_size"`
+	MaxMessageSize         int32  `toml:"max_message_size"`
+	MaxWaitTime            uint32 `toml:"max_wait_time"`
+	OffsetMethod           string `toml:"offset_method"` // Manual, Newest, Oldest
+	EventBufferSize        int    `toml:"event_buffer_size"`
+	AddKafkaMetadataFields bool   `toml:"add_kafka_metadata_fields"`
 }
 
 type KafkaInput struct {
@@ -96,6 +97,7 @@ func (k *KafkaInput) ConfigStruct() interface{} {
 		MaxWaitTime:                250,
 		OffsetMethod:               "Manual",
 		EventBufferSize:            16,
+		AddKafkaMetadataFields:     false,
 	}
 }
 
@@ -253,7 +255,7 @@ func (k *KafkaInput) Run(ir pipeline.InputRunner, h pipeline.PluginHelper) (err 
 		k.addField(pack, "Partition", event.Partition, "")
 		k.addField(pack, "Offset", event.Offset, "")
 	}
-	if !sRunner.UseMsgBytes() {
+	if k.config.AddKafkaMetadataFields || !sRunner.UseMsgBytes() {
 		sRunner.SetPackDecorator(packDec)
 	}
 
