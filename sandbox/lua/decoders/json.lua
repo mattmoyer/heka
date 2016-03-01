@@ -195,6 +195,10 @@ function process_message()
             end
         end
         json[fm_timestamp] = nil
+    else
+        -- if the timestamp wasn't read from the message, copy over the source
+        -- timestamp so we get full nanosecond precision
+        msg.Timestamp = read_message("Timestamp")
     end
 
     -- flatten and assign remaining fields to heka fields
